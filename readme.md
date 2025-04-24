@@ -86,5 +86,8 @@ Run	ProcessS2/processFiles_S2.py to generate csv files with elevation zone data.
 
 
 
+**constants.py**
+File setting constants to be used in cosipy runs. Note commentary in the file. 
+
 
 
