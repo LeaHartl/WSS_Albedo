@@ -348,11 +348,13 @@ dts2 = ['180817', '190827', '200915', '210821', '220824', '230910', '240907']
 ContourPoly = gpd.read_file('/Users/leahartl/Desktop/WSS/outlines/ContourPolygons2017.shp')
 ContourPoly.to_crs(epsg=32632, inplace=True)
 
+# histogram plots (Paper Fig.)
+histograms(GI5g, RGI, dts2, ContourPoly)
+# for poster - different layout and transparent background
+# histograms_poster(GI5g, RGI, dts2, ContourPoly)
 
-# histograms(GI5g, RGI, dts2, ContourPoly)
-
-histograms_poster(GI5g, RGI, dts2, ContourPoly)
-# subplotsRGBcontours(GI5g, AWS, RGI, dts2, ContourPoly)
+# subplots showing summer minimum conditions and albedo (Paper Fig.)
+subplotsRGBcontours(GI5g, AWS, RGI, dts2, ContourPoly)
 
 
 plt.show()

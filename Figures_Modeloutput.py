@@ -54,7 +54,7 @@ inp_csv = inp_csv[time_start:time_end]
 print(inp_csv.head())
 
 
-def fig1_1(inp_csv, ds):
+def Model_Eval(inp_csv, ds):
     fig, ax = plt.subplots(2, 1, figsize=(11, 8), sharex=True)
     ax = ax.flatten()
     ax1 = ax[0].twinx()
@@ -122,8 +122,7 @@ def fig1_1(inp_csv, ds):
     fig.savefig('figs/model_August2021_SIMPLE.png', bbox_inches='tight', dpi=200)
 
 
-
-def fig2():
+def SummerClimatology():
     minalb = 0
     maxalb = 1
 
@@ -272,9 +271,7 @@ def fig2():
     fig.savefig('figs/model_albedo_meanclim2025.png', bbox_inches='tight', dpi=200)
 
 
-
-
-def fig2_forposter():
+def SummerClim_forposter():
     minalb = 0
     maxalb = 1
 
@@ -343,14 +340,7 @@ def fig2_forposter():
     fig.savefig('figs/model_albedo_meanclim_poster.png', bbox_inches='tight', dpi=400, transparent=True)
 
 
-
-
-
-
-
 def Avg_vs_2022():
-
-
     minalb = 0
     maxalb = 1
 
@@ -412,8 +402,6 @@ def Avg_vs_2022():
     ax0 = ax_0.twinx()
     ax0.tick_params(axis='y', labelsize=14)
 
-    # ax_0.legend()
-    # ax0.legend()
     # plot albedo for mean and 2022 heatwave
     ax0.scatter(inp_d.index.shift(freq='12h'), inp_d.Albedo, label='avg. albedo', color='orange' )
     ax0.scatter(inp_csv_d.index.shift(freq='12h'), inp_csv_d.Albedo, label='2022 albedo', color='r')
@@ -424,21 +412,16 @@ def Avg_vs_2022():
     ax_0.set_ylim(-2, 10)
 
     ax_0.set_xlim(pd.to_datetime('1900-07-15'), pd.to_datetime('1900-07-23'))
-    #ax_0.set_xticklabels(ax_0.get_xticklabels(), rotation=45, ha='right')
     ax_0.set_xticklabels([])
     ax0.set_xticklabels([])
     ax_0.xaxis.set_tick_params(labelbottom=False)
     ax0.xaxis.set_tick_params(labelbottom=False)
-    # ax_0.set_xticks([])
-    # ax0.set_xticks([])
 
     myFmt = mdates.DateFormatter('%b-%d')
-    # myFmt2 = mdates.DateFormatter('%b')
     ax_0.xaxis.set_major_formatter(myFmt)
 
     ax_0.legend(loc='upper left', bbox_to_anchor=(-.02, 1.34), ncol=2, fontsize=14)
     ax0.legend(loc='upper left', bbox_to_anchor=(-.02, 1.2), ncol=2, fontsize=14)
-
 
     ax_1.plot(inp.index, inp.SWin_Avg-inp.SWout_Avg, label='avg. SW net', color='k', linewidth=0.5, linestyle='--')
     ax_1.plot(inp_csv.index, inp_csv.SWin_Avg-inp_csv.SWout_Avg, label='2022 SW net', color='k')
@@ -449,8 +432,6 @@ def Avg_vs_2022():
 
     ax_1.xaxis.set_major_formatter(myFmt)
     ax_1.set_ylabel('SW net (W m$^{-2}$)', fontsize=16)
-
-
 
     ds_real22 = xr.open_dataset('/Users/leahartl/Desktop/WSS/AWS2COSIPY/cospiy_July2024/data/output/AWS_WSS_4cosipy_heatwave2022.nc')
     print(ds_real22.variables)
@@ -464,7 +445,6 @@ def Avg_vs_2022():
     ds_mean_LE_H = extractNC(ds_real, 'LE')
     ds_mean_Ground_H = extractNC(ds_real, 'B')
 
-
     ds_22_G_H = extractNC(ds_real22, 'G')
     ds_22_alb_H = extractNC(ds_real22, 'ALBEDO')
     ds_22_ME_H = extractNC(ds_real22, 'ME')
@@ -473,7 +453,6 @@ def Avg_vs_2022():
     ds_22_LWin_H = extractNC(ds_real22, 'LWin')
     ds_22_LWout_H = extractNC(ds_real22, 'LWout')
     ds_22_Ground_H = extractNC(ds_real22, 'B')
-
 
     dfweek_major = pd.DataFrame(columns=['Q_ground', 'Q_latent', 'Q_sens', 'LWin', 'LWout', 'LWnet','SWin', 'SWout', 'SWnet','ME'], index=['2022 fluxes', 'avg. fluxes'])
     dfweek_major.loc['2022 fluxes', 'ME'] = ds_22_ME_H.sum()
@@ -486,7 +465,6 @@ def Avg_vs_2022():
     dfweek_major.loc['2022 fluxes', 'Q_sens'] = ds_22_sens_H.sum()
     dfweek_major.loc['2022 fluxes', 'Q_latent'] = ds_22_LE_H.sum()
     dfweek_major.loc['2022 fluxes', 'Q_ground'] = ds_22_Ground_H.sum()
-
 
     dfweek_major.loc['avg. fluxes', 'ME'] = ds_mean_ME_H.sum()
     dfweek_major.loc['avg. fluxes', 'SWin'] = ds_mean_G_H.sum()
@@ -506,16 +484,12 @@ def Avg_vs_2022():
     
     percdif = 100*(dfweek_major.loc['2022 fluxes', :]) / dfweek_major.loc['avg. fluxes', :]
     print(percdif)
-    # dfweek_major = dfweek_major / (8)
-
-    # print(dfweek_major)
 
     dfweek_major.T.plot.barh(ax=ax_3, color=['black', 'grey'])
     ax_3.yaxis.tick_right()
     ax_3.grid('x')
     ax_3.set_xlabel('Total energy fluxes 15.-22. Jul. (W m$^{-2}$)', fontsize=16) 
     ax_3.legend(fontsize=14)
-
 
     ax_0.text(pd.to_datetime('1900-07-15 06:00'), 7, 'a', 
                  bbox=dict(boxstyle="square,pad=0.3", fc="lightgrey", ec="grey", lw=2))
@@ -528,29 +502,20 @@ def Avg_vs_2022():
 
     fig.savefig('figs/heatwave_vs_meanclim.png', bbox_inches='tight', dpi=200)
 
-    # plt.show()
-
-
 
 def extractNC(ds, par):
     ds_par = ds[par].squeeze().to_pandas()
     ds_par.index = ds_par.index.map(lambda t: t.replace(year=1900))
     ds_par = ds_par.loc[pd.to_datetime('1900-07-15'): pd.to_datetime('1900-07-23')]
-    # ds_par_H = ds_par.groupby(ds_par.index.hour).mean()
     return(ds_par)
 
 
-
-
-
-
-def fig3():
+def FigHeatwave2022():
     minalb = 0.1
     maxalb = 0.9
-    step=0.1
+    step = 0.1
 
     df = pd.DataFrame(columns=np.arange(minalb, maxalb, step))
-
 
     for alb in np.arange(minalb, maxalb, step):
         fn = '/Users/leahartl/Desktop/WSS/AWS2COSIPY/cospiy_July2024/data/output/AWS_WSS_4cosipy_heatwave2022_'+str(alb.round(decimals=2))+'.nc'
@@ -580,8 +545,6 @@ def fig3():
     print(df_real.resample('D').sum()*1000)
     print(df.sum()*1000)
     print(df_real.sum()*1000)
-    #print(df_real.loc[df_real.index.month==8])
-
 
     fig, ax = plt.subplots(3, 1, figsize=(12, 10), sharex=True)
     ax = ax.flatten()
@@ -602,25 +565,18 @@ def fig3():
     ax[0].set_ylabel('$°C$ ; $100*W/m^2$', fontsize=14)
     ax0.set_ylabel('Albedo', fontsize=14)
 
-
     ax[1].scatter(df_real.index, df_real.surfMB*1000, label='albedo as measured', color='grey', zorder=100, s=12)
-    # for i, c in enumerate(np.arange(0.1, 0.95, 0.5)):
     for i, c in enumerate(df.columns):
         ax[1].plot(df_d.index, df_d[c]*1000, label='albedo: '+str(round(c, 2)), color=clrs[i], linewidth=0.8)#, s=4)
     ax[1].legend(loc='center left', bbox_to_anchor=(1.01, 0.0), fontsize=14)
     ax[1].grid('both')
 
-
     ax[2].scatter(df_real.index, df_real.surfMB.cumsum()*1000, label='albedo as measured', color='grey', s=10)
-    # for i, c in enumerate(np.arange(0.1, 0.95, 0.5)):
     for i, c in enumerate(df.columns):
         ax[2].plot(df_d.index, df_d[c].cumsum()*1000, label='albedo: '+str(round(c, 2)), color=clrs[i], linewidth=1)#, color='pink')
-    # ax[2].legend(loc='lower left')
     ax[2].grid('both')
 
     ax[1].set_ylabel('SMB. (mm w.e.)', fontsize=16)
-    # ax[1].set_title('Surface mass balance')
-    # ax[2].set_ylabel('mm w.e.')
     ax[2].set_ylabel('Cumul. SMB (mm w.e.)', fontsize=16)
     ax[2].set_xlim(pd.to_datetime('2022-07-15 00:00'), pd.to_datetime('2022-07-23 00:00'))
     ax[2].set_ylim(-500, 100)
@@ -641,13 +597,10 @@ def fig3():
                  bbox=dict(boxstyle="square,pad=0.3", fc="lightgrey", ec="grey", lw=2))
 
 
-
     surfheight = pd.read_csv('out/cleaned_surface_hourly.csv', index_col='TIMESTAMP', parse_dates=True)
     
     surfheight=surfheight.loc['2022-07-15 00:00': '2022-07-23 00:00']
-    print(surfheight)
-    # ax[3].plot(surfheight.index, surfheight.Surf_step1*1000, linewidth=1, color='k',zorder=200)
-    # ax[3].set_ylim(-400, 100)
+    # print(surfheight)
     snow = surfheight.loc[surfheight.Surf_step1>0]
     ice = surfheight.loc[surfheight.Surf_step1<=0]
 
@@ -659,157 +612,10 @@ def fig3():
 
     print((ice.diff()*900).resample('D').sum())
 
-   
-    # ax[3].fill_between(snow.index, snow.Surf_step1*1000, color='lightgrey', zorder=100, label='snow ('+str(snow_we.values[-1][0].round(decimals=0).astype(int))+' mm w.e.)')
-    # ax[3].fill_between(surfheight.index, surfheight.Surf_step1*1000, -600, color='lightblue', label='ice ('+str(ice_we.values[-1][0].round(decimals=0).astype(int))+') mm w.e.)')
-    # ax[3].grid('both')
-    # ax[3].legend()
-    # ax[3].set_ylabel('Surface height (mm)')
-
-    # ax[3].text(pd.to_datetime('2022-07-15 06:00'), -350, 'd', 
-    #              bbox=dict(boxstyle="square,pad=0.3", fc="lightgrey", ec="grey", lw=2))
-
     fig.savefig('figs/model_Heatwave2022.png', bbox_inches='tight', dpi=200)
 
 
-
-
-# def fig3_rev():
-#     minalb = 0.1
-#     maxalb = 0.9
-#     step=0.1
-
-#     df = pd.DataFrame(columns=np.arange(minalb, maxalb, step))
-
-#     df_ME = pd.DataFrame(columns=np.arange(minalb, maxalb, step))
-
-
-#     for alb in np.arange(minalb, maxalb, step):
-#         fn = '/Users/leahartl/Desktop/WSS/AWS2COSIPY/cospiy_July2024/data/output/AWS_WSS_4cosipy_heatwave2022_'+str(alb.round(decimals=2))+'.nc'
-#         ds = xr.open_dataset(fn)
-
-#         ds_d = ds.surfMB.squeeze().to_pandas()
-#         ds_d.index = pd.to_datetime(ds_d.index)
-#         ds_d = ds_d#.resample('D').sum()
-#         df[alb] = ds_d
-
-
-#         ds_me = ds.ME.squeeze().to_pandas()
-#         ds_me.index = pd.to_datetime(ds_me.index)
-#         df_ME[alb] = ds_me
-
-#     # print(df)
-#     # print(df_ME)
-#     # stop
-#     df = df
-#     df_d=df#.resample('D').sum()
-
-#     ds_real = xr.open_dataset('/Users/leahartl/Desktop/WSS/AWS2COSIPY/cospiy_July2024/data/output/AWS_WSS_4cosipy_heatwave2022.nc')
-#     ds_d_real = ds_real.surfMB.squeeze().to_pandas()
-#     ds_d_real.index = pd.to_datetime(ds_d_real.index)
-#     # ds_d_real = ds_d_real.resample('D').sum()
-
-#     print(ds_real.variables)
-
-#     # ds_real_SWin = ds_real.G.squeeze().to_pandas()
-#     # ds_real_LWin = ds_real.LWin.squeeze().to_pandas()
-#     # ds_real_LWout = ds_real.LWout.squeeze().to_pandas()
-#     # ds_real_sens = ds_real.H.squeeze().to_pandas()
-#     # ds_real_late = ds_real.LE.squeeze().to_pandas()
-#     # ds_real_ME = ds_real.ME.squeeze().to_pandas()
-
-#     # print(ds_real.ME)
-
-
-#     df_real = pd.DataFrame(columns=['surfMB', 'albedo'])
-#     df_real['surfMB'] = ds_d_real
-#     df_real['albedo'] = ds_real.ALBEDO.squeeze().to_pandas().resample('D').mean()
-#     df_real['LE'] = ds_real.LE.squeeze().to_pandas()#.resample('D').mean()
-#     df_real['SWin'] = ds_real.G.squeeze().to_pandas()
-#     df_real['H'] = ds_real.H.squeeze().to_pandas()
-#     df_real['ME'] = ds_real.ME.squeeze().to_pandas()
-#     df_real['Ground'] = ds_real.B.squeeze().to_pandas()
-#     print(df_real)
-#     print(df.resample('D').sum()*1000)
-#     print(df_real.resample('D').sum()*1000)
-#     print(df.sum()*1000)
-#     print(df_real.sum()*1000)
-#     #print(df_real.loc[df_real.index.month==8])
-
-
-#     fig, ax = plt.subplots(4, 1, figsize=(10, 6), sharex=True)
-#     ax = ax.flatten()
-#     clrs = cm.plasma(np.linspace(0, 1, len(df.columns)))
-#     # ax.plot(ds.time, ds.T2.squeeze())
-#     inp_csv = pd.read_csv('/Users/leahartl/Desktop/WSS/AWS2COSIPY/AWS/AWS_WSS_4cosipy_heatwave2022.csv', parse_dates=True, index_col=0)
-#     ax[0].plot(inp_csv.index, inp_csv.Tair_Avg, label='Air temperature', color='k', linestyle='--')
-#     ax[0].plot(inp_csv.index, inp_csv.SWin_Avg/100, label='SWin', color='k')
-#     ax[0].plot(inp_csv.index, inp_csv.LWin_Cor/100, label='LWin', color='grey')
-#     # ax[0].plot(df_real.index, df_real['LE']/100, label='B', color='blue')
-#     ax[0].grid('both')
-#     ax0 = ax[0].twinx()
-#     #ax0.plot(inp_csv.index, inp_csv.Surf, label='surface height, AWS', color='k')
-#     ax0.scatter(df_real.index.shift(freq='12h'), df_real.albedo, label='albedo, AWS', color='r')
-#     ax[0].legend(loc='upper center', bbox_to_anchor=(0.4, 1.28), ncol=3)
-#     ax0.legend(loc='upper center', bbox_to_anchor=(0.8, 1.28))
-
-#     ax[0].set_ylabel('$°C$ ; $100*W/m^2$', fontsize=16)
-#     ax0.set_ylabel('Albedo', fontsize=16)
-
-
-
-
-#     ax[1].scatter(df_real.index, df_real.surfMB*1000, label='albedo as measured', color='grey', zorder=100, s=12)
-#     # for i, c in enumerate(np.arange(0.1, 0.95, 0.5)):
-#     for i, c in enumerate(df.columns):
-#         ax[1].plot(df_d.index, df_d[c]*1000, label='albedo: '+str(round(c, 2)), color=clrs[i], linewidth=0.8)#, s=4)
-#     ax[1].legend(loc='center left', bbox_to_anchor=(1.01, 0.0), fontsize=14)
-#     ax[1].grid('both')
-
-
-#     ax[2].scatter(df_real.index, df_real.surfMB.cumsum()*1000, label='albedo as measured', color='grey', s=10)
-#     # for i, c in enumerate(np.arange(0.1, 0.95, 0.5)):
-#     for i, c in enumerate(df.columns):
-#         ax[2].plot(df_d.index, df_d[c].cumsum()*1000, label='albedo: '+str(round(c, 2)), color=clrs[i], linewidth=1)#, color='pink')
-#     # ax[2].legend(loc='lower left')
-#     ax[2].grid('both')
-
-#     ax[1].set_ylabel('SMB. (mm w.e.)', fontsize=16)
-#     # ax[1].set_title('Surface mass balance')
-#     # ax[2].set_ylabel('mm w.e.')
-#     ax[2].set_ylabel('Cumul. SMB (mm w.e.)',  fontsize=16)
-#     ax[2].set_xlim(pd.to_datetime('2022-07-15 00:00'), pd.to_datetime('2022-07-23 00:00'))
-
-
-
-#     ax[3].scatter(df_real.index, df_real.LE, label='LE', color='grey', zorder=100, s=12)
-#     ax[3].scatter(df_real.index, df_real.H, label='H', color='k', zorder=100, s=12)
-#     ax[3].scatter(df_real.index, df_real.ME, label='SW', color='red', zorder=100, s=12)
-#     ax[3].set_xlim(pd.to_datetime('2022-07-15 00:00'), pd.to_datetime('2022-07-23 00:00'))
-
-
-#     for a in ax:
-#         a.tick_params(axis='x', labelsize=16, rotation=45)
-#         a.tick_params(axis='y', labelsize=16)
-#     ax0.tick_params(axis='y', labelsize=16)
-
-#     ax[0].text(pd.to_datetime('2022-07-15 06:00'), 9, 'a', 
-#                  bbox=dict(boxstyle="square,pad=0.3", fc="lightgrey", ec="grey", lw=2))
-
-#     ax[1].text(pd.to_datetime('2022-07-15 06:00'), -6.5, 'b', 
-#                  bbox=dict(boxstyle="square,pad=0.3", fc="lightgrey", ec="grey", lw=2))
-
-#     ax[2].text(pd.to_datetime('2022-07-15 06:00'), -150, 'c', 
-#                  bbox=dict(boxstyle="square,pad=0.3", fc="lightgrey", ec="grey", lw=2))
-
-
-
-#     fig.savefig('figs/model_Heatwave2022_2.png', bbox_inches='tight', dpi=200)
-
-
-
-
-def fig4():
+def barplot_avgconditions():
     dat = pd.read_csv('out/averagemelt_model2025.csv')
     dat.index = dat.time
     
@@ -834,22 +640,21 @@ def fig4():
 
 
 # paper fig: average summer climatology:
-# fig2()
+SummerClimatology()
 
-#fig2_forposter()
+#SummerClim_forposter()
 
 # figure comparing average conditions vs 2022 during July subperiod
 Avg_vs_2022()
 
 # sup fig: model evalulation
-# fig1_1(inp_csv, ds)
+Model_Eval(inp_csv, ds)
 
 # paper fig: 2022 heat wave
-# fig3()
-
+FigHeatwave2022()
 
 # paper fig: bar plot SMB for average conditions (15 day averages)
-# fig4()
+barplot_avgconditions()
 
 
     

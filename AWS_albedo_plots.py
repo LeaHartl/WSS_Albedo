@@ -39,39 +39,17 @@ data2['difrad'] = data2['SWin_Avg'] - data2['POA']
 data2['albedo'] = data2['SWout_Avg']/data2['SWin_Avg']
 
 
-
-
-
-# # list of flags
-# flags = ['Batt_Min_flag', 'Tair_Avg_flag', 'Hum_Avg_flag', 'Press_Avg_flag', 'Wdir_flag', 'Wspeed_flag',
-#          'Wspeed_Max_flag', 'SWin_Avg_flag', 'SWout_Avg_flag', 'LWin_Cor_flag', 'LWout_Cor_flag',
-#          'Snow_flag']
-
-# set data with flags to np.nan before passing to plotting functions:
-# for flag in flags:
-#     #print(data.loc[(data[flag] != 0), flag[:-5]])
-#     data2.loc[(data[flag] != 0), flag[:-5]] = np.nan
-
-
-# data2['albedo'] = data2.SWout_Avg/data2.SWin_Avg
-#data2.loc[data['Wdir_flag']!=0, 'albedo'] = np.nan
-
-# bothWinter[maskWinterSWinout & maskSolarNoonWinter]
-
 # make new DF with most relevant parameters:
 dfAlbedo = data2[['albedo', 'albedo_Cor', 'GHI', 'POA', 'SWin_Avg', 'SWout_Avg']]
 # add day of year
 dfAlbedo['doy'] = dfAlbedo.index.dayofyear
 
-# maskNoon = (dfAlbedo.index.hour >= 10) & (dfAlbedo.index.hour <= 12)
-# maskSWinout= (dfAlbedo.SWout_Avg < dfAlbedo.SWin_Avg)
-
 # set albedo values below 0 and above 1 to nan
-dfAlbedo['albedo'].loc[dfAlbedo.albedo < 0] = np.nan
-dfAlbedo['albedo'].loc[dfAlbedo.albedo > 1] = np.nan
+dfAlbedo.loc[dfAlbedo.albedo < 0, 'albedo'] = np.nan
+dfAlbedo.loc[dfAlbedo.albedo > 1, 'albedo'] = np.nan
 # do the same for "corrected albedo"
-dfAlbedo['albedo_Cor'].loc[dfAlbedo.albedo_Cor < 0] = np.nan
-dfAlbedo['albedo_Cor'].loc[dfAlbedo.albedo_Cor > 1] = np.nan
+dfAlbedo.loc[dfAlbedo.albedo_Cor < 0, 'albedo_Cor'] = np.nan
+dfAlbedo.loc[dfAlbedo.albedo_Cor > 1, 'albedo_Cor'] = np.nan
 
 # start steps to generate a DF of daily mean values (drop nans first)
 df_mean1 = dfAlbedo[['albedo', 'albedo_Cor', 'POA', 'SWin_Avg', 'SWout_Avg']].dropna(subset=['albedo', 'albedo_Cor'])
@@ -84,20 +62,20 @@ df_mean = df_mean1.resample('d').mean()
 
 # now add albedo computed as daily sum of outgoing / dail ysum of incoming SW:
 # first remove values below 2 W/m2 to account for sensor issues (based on comments in the sensor manual):
-data['SWout_Avg'].loc[data['SWout_Avg'] < 2] = np.nan
-data['SWin_Avg'].loc[data['SWout_Avg'] < 2] = np.nan
+data.loc[data['SWout_Avg'] < 2, 'SWout_Avg'] = np.nan
+data.loc[data['SWout_Avg'] < 2, 'SWin_Avg'] = np.nan
 # albedo sum: daily SWout / daily SWin
 df_mean['albedo_sum'] = data.resample('d').sum()['SWout_Avg'] / data.resample('d').sum()['SWin_Avg']
 # set values below 0 and above 1 to nan
-df_mean['albedo_sum'].loc[df_mean.albedo_sum < 0] = np.nan
-df_mean['albedo_sum'].loc[df_mean.albedo_sum > 1] = np.nan
+df_mean.loc[df_mean.albedo_sum < 0, 'albedo_sum'] = np.nan
+df_mean.loc[df_mean.albedo_sum > 1, 'albedo_sum'] = np.nan
 # albedo_Cor_sum: ratio of daily sum but with tilted incoming estimate instead of SWin measured at sensor
 df_mean['albedo_Cor_sum'] = data2.resample('d').sum()['SWout_Avg'] / data2.resample('d').sum()['POA']
 
 
 # WRITE CSV (optional)
 # print(df_mean.head())
-#df_mean.to_csv('out/albedo_cor_daily2025.csv')
+# df_mean.to_csv('out/albedo_cor_daily2025.csv')
 
 
 # make a DF of monthly median values from the DF with the daily values:
@@ -131,35 +109,30 @@ for s in skiplist:
 # in winter, most likely from riming issues not caught in the previous step)
 
 # set to nan if albedo is less than 0.4 between November and May.
-df_mean['albedo'].loc[((df_mean.index.month>=11) | (df_mean.index.month<=5)) & (df_mean['albedo']<0.4)] = np.nan
-df_mean['albedo_Cor'].loc[((df_mean.index.month>=11) | (df_mean.index.month<=5)) & (df_mean.albedo_Cor<0.4)] = np.nan
-df_mean['albedo_sum'].loc[((df_mean.index.month>=11) | (df_mean.index.month<=5)) & (df_mean.albedo_sum<0.4)] = np.nan
+df_mean.loc[((df_mean.index.month>=11) | (df_mean.index.month<=5)) & (df_mean['albedo']<0.4), 'albedo'] = np.nan
+df_mean.loc[((df_mean.index.month>=11) | (df_mean.index.month<=5)) & (df_mean.albedo_Cor<0.4), 'albedo_Cor'] = np.nan
+df_mean.loc[((df_mean.index.month>=11) | (df_mean.index.month<=5)) & (df_mean.albedo_sum<0.4), 'albedo_sum'] = np.nan
 
 # set to nan if albedo is less than 0.6 between December and March.
-df_mean['albedo'].loc[((df_mean.index.month>=12) | (df_mean.index.month<=3)) & (df_mean.albedo<0.6)] = np.nan
-df_mean['albedo_Cor'].loc[((df_mean.index.month>=12) | (df_mean.index.month<=3)) & (df_mean.albedo_Cor<0.6)] = np.nan
-df_mean['albedo_sum'].loc[((df_mean.index.month>=12) | (df_mean.index.month<=3)) & (df_mean.albedo_sum<0.6)] = np.nan
+df_mean.loc[((df_mean.index.month>=12) | (df_mean.index.month<=3)) & (df_mean.albedo<0.6), 'albedo'] = np.nan
+df_mean.loc[((df_mean.index.month>=12) | (df_mean.index.month<=3)) & (df_mean.albedo_Cor<0.6), 'albedo_Cor'] = np.nan
+df_mean.loc[((df_mean.index.month>=12) | (df_mean.index.month<=3)) & (df_mean.albedo_sum<0.6), 'albedo_sum'] = np.nan
 df_mean['doy'] = df_mean.index.dayofyear
 
 
 ## This is a list of dates with faulty data in the S2 time series, this is passed to some of the
 # plotting functions later to exclude these days.
-#UPDATE FOR 2024
 baddates_sat = pd.to_datetime(['2018-08-02',
                              '2018-09-29', '2018-11-25','2018-12-08',
                              '2019-01-27', '2019-04-02','2019-04-04', '2019-08-22', '2019-08-30','2019-12-15',
-                             '2020-02-06', '2020-11-19', '2020-12-04', 
+                             '2020-02-06', '2020-11-19', '2020-12-04',
                              '2021-01-31', '2021-12-14', '2021-11-19',
                              '2022-01-03', '2022-02-07', '2022-08-26', '2022-10-20', '2022-12-27', '2022-12-29', 
                              '2023-01-13', '2023-02-20', '2023-12-29',
                              '2024-01-08', '2024-01-28', '2024-02-15', '2024-12-11'])
 
 
-
-
-
 ## ----- HERE ARE THE PLOTTING FUNCTIONS ----- ##
-
 
 
 def albedoAllYears(df_mean, what):
@@ -191,14 +164,6 @@ def albedoAllYears(df_mean, what):
     ax.xaxis.set_tick_params(labelsize=18, rotation=45)
     ax.yaxis.set_tick_params(labelsize=20)
     ax.xaxis.set_major_formatter(myFmt)
-
-    # axins.set_xlim(170, 258)
-    # axins.set_ylim(0.1, 1)
-    # axins.set_xticks([181, 212, 243])
-    # axins.xaxis.set_major_formatter(myFmt)
-    # axins.yaxis.tick_right()
-    # ax.indicate_inset_zoom(axins, edgecolor="black")
-    # axins.grid('both')
 
     fig.savefig('figs/timeseries_allinone_'+what+'.png', bbox_inches='tight', dpi=300, transparent = 'True')
 
@@ -873,13 +838,10 @@ print('Quantiles:', df_mean.quantile([0.01, .05, 0.1]))
 # This is prep for a fig with two subplots showing the effect of the tilt correction for example weeks in winter and summer.
 # 'albedo_cor_summerwinter'
 # set desired dates for the summer and winter examples here:
-# day = '2020-11-23'
-# day1 = '2020-12-01'
+
 day = '2020-12-17'
 day1 = '2020-12-21'
 
-# daySummer = '2021-06-12'
-# day1Summer = '2021-06-22'
 daySummer = '2021-06-14'
 day1Summer = '2021-06-18'
 
@@ -892,13 +854,13 @@ bothSummer = data2.loc[daySummer+' 00:00' : day1Summer+' 23:50']
 
 #### PLOTS:
 ########
-# sup fig: 2 panel fig with example weeks in winter and summer showing impact pf tilt correction
+# # sup fig: 2 panel fig with example weeks in winter and summer showing impact pf tilt correction
 # dailyCor_SummerWinter(both, bothSummer)
 
 
-# ######
-# # sup fig: this plots the difference between tilt corrected daily albedo and uncorrected values.
-# # 'albedo_cor'
+# # ######
+# # # sup fig: this plots the difference between tilt corrected daily albedo and uncorrected values.
+# # # 'albedo_cor'
 # Scatterplot_Cor(data2, df_mean)
 
 
@@ -908,7 +870,7 @@ bothSummer = data2.loc[daySummer+' 00:00' : day1Summer+' 23:50']
 # # set to "albedo_sum" to use albedo computed as ratio of daily sum SWout to daily sum SWin
 # # make time series figure ("timeseries_anomalies"), make csv files "countdays" and "monthly stats"
 # albedo_stats(df_mean, baddates_sat, skiplist, 'albedo_sum')
-#albedo_stats_rev(df_mean, baddates_sat, skiplist, 'albedo_sum')
+albedo_stats_rev(df_mean, baddates_sat, skiplist, 'albedo_sum')
 
 ######
 # scatter plots AWS with s2:

@@ -14,7 +14,7 @@ import matplotlib.colors as mcolors
 # from shapely.geometry import Point
 import glob
 
-import fontawesome as fa
+# import fontawesome as fa
 from matplotlib.path import Path
 from matplotlib.textpath import TextToPath
 from matplotlib.font_manager import FontProperties
@@ -35,10 +35,9 @@ import matplotlib.patheffects as pe
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
-# load files and process to generate centroid locations of the stakes and AWS.
-
+# load files and process data to generate centroid locations of the stakes and AWS.
 # file with checked stake data (ablation and position information)
-stakedata = '/Users/leahartl/Desktop/WSS/process_stakes/WSS_stakes_point_mass_balance.csv'
+stakedata = '/Users/leahartl/Desktop/WSS/Re__Updates_WSS_paper/WSS_stakes_point_mass_balance.csv'
 
 stakes = pd.read_csv(stakedata, parse_dates=True)
 stakes['date1'] = pd.to_datetime(stakes['date1'])
@@ -57,7 +56,7 @@ AWS_pts.columns = ['date1', 'name', 'geometry']
 AWS_tofile = AWS_pts.copy()
 AWS_tofile['date1'] = AWS_tofile['date1'].astype(str)
 AWS_tofile.to_file('/Users/leahartl/Desktop/WSS/outlines/AWS_pts_all.shp')
-stop
+
 #merge AWS with stake positions:
 both = pd.concat([stakes_gdf, AWS_pts])
 
@@ -91,10 +90,10 @@ print(rmselist)
 
 def coordinates_fig(summer, meanpos):
 
+    # load background imagery for figure (hillshade and RGB S2 scene)
     dem_f = '/Users/leahartl/Desktop/WSS/Gepatsch2017_clip.tif'
-    # satraster = '/Users/leahartl/Desktop/WSS/examples/2017_08_25.tiff'
     satraster = '/Users/leahartl/Desktop/WSS/examples/2021_08_14.tiff'
-    # plot stuff as reality check:
+    # make figure: 
     fig, ax = plt.subplots(1,1, figsize=(12, 5))
 
     axins = ax.inset_axes([0.01, 1.0, 0.7, 0.8])
@@ -111,25 +110,16 @@ def coordinates_fig(summer, meanpos):
     ax.set_xlim([minx, maxx])
     ax.set_ylim([miny, maxy])
 
-
     axins.set_xlim([29000, 29800])
     axins.set_ylim([189600, 190000])
 
-
-    # meanpos.index = meanpos.index.str.replace('BL0319', 'H')
-
-
-    #AWS.plot(ax=ax, color='red', marker='*', markersize=10, zorder=10)
-    # stakes.plot(ax=ax, alpha=1, color='black', marker='o', markersize=4, zorder=20)
-    # coords.plot(column='yr', ax=ax, markersize=4, cmap='viridis')
-    summer2 = summer.loc[summer.name!='g']
+    summer2 = summer.loc[summer.name != 'g']
     summer2.plot(ax=ax, markersize=4, color='k')
-    # summer.plot(column='stakename', ax=ax, markersize=4, cmap='tab10', legend='True')
 
     # a b c d H
-    #skip g:
-    clrs = ['blue', 'orange', 'green', 'purple', 'cyan', 'pink', 'grey', 'red']#,'olive'
-    points = ['A', 'B', 'C', 'D', 'E', 'F', 'H', 'AWS']#,'g'
+    #skip g since we don't really use it in the paper (short time series)
+    clrs = ['blue', 'orange', 'green', 'purple', 'cyan', 'pink', 'grey', 'red'] #,'olive'
+    points = ['A', 'B', 'C', 'D', 'E', 'F', 'H', 'AWS'] #,'g'
 
     patches = []
 
@@ -154,11 +144,10 @@ def coordinates_fig(summer, meanpos):
     ax.add_artist(ScaleBar(dx=1, location="lower left"))
     axins.add_artist(ScaleBar(dx=1, location="lower left"))
 
-
     lon_lat_list = [[minx, miny], [minx, maxy], [maxx, maxy], [maxx, miny]]
 
     polygon_geom = Polygon(lon_lat_list)
-    box1= gpd.GeoDataFrame(index=[0], crs='epsg:31254', geometry=[polygon_geom])       
+    box1 = gpd.GeoDataFrame(index=[0], crs='epsg:31254', geometry=[polygon_geom])       
     box1.boundary.plot(ax=axins, alpha=1, color='red', linewidth=2)
 
     axins.set_xticks([29000, 29400, 29800])
@@ -173,16 +162,12 @@ def coordinates_fig(summer, meanpos):
     smallpatch = Line2D([0], [0], marker='o', linestyle='None', label='coordinates', color='k', markersize=4, zorder=10)
 
     bufferpatch = Line2D([0], [0], marker='None', linestyle='--', color='k', label='buffer', markersize=12)
-    # bufferpatch = mpatches.CirclePolygon(xy=(0,0), radius=5, edgecolor='k', label='buffer', color='k')
-    # insetpatch = mpatches.Patch(linestyle='-', label='subset in panel b', color='r', facecolor='None')
 
     patches.append(campatch)
     patches.append(smallpatch)
     patches.append(bufferpatch)
-    # patches.append(insetpatch)
 
     fig.legend(handles=patches, loc='lower right', bbox_to_anchor=(1.01, 0.9), ncol=2, fontsize=18)
-
 
     fs = 20
     ax.text(29390, 189790,'b', fontsize=fs,
@@ -190,7 +175,6 @@ def coordinates_fig(summer, meanpos):
 
     axins.text(29780, 189920,'a', fontsize=fs,
     bbox=dict(boxstyle="square,pad=0.3",fc="lightgrey", ec="grey", lw=2))
-
 
     fig.savefig('figs/stake_positions_S2_2024.png', dpi=200, bbox_inches='tight')
 

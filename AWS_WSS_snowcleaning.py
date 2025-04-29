@@ -65,13 +65,13 @@ filepath = '/Users/leahartl/Desktop/WSS/AWS_wss/20172031_20250107_WSS_gesamt.dat
 # start = '2022-07-05'
 # end = '2022-09-25'
 
-yr = 'mean_2018_2024'
-start = '2018-01-01'
-end = '2024-12-31'
+# yr = 'mean_2018_2024'
+# start = '2018-01-01'
+# end = '2024-12-31'
 
-# yr = 'heatwave2022'
-# start = '2022-07-15'
-# end = '2022-07-22'
+# # yr = 'heatwave2022'
+# # start = '2022-07-15'
+# # end = '2022-07-22'
 
 yr = 'alldata'
 start = '2018-01-01'
@@ -507,13 +507,10 @@ def smoothSnow(ds):
 
 dsWSS_CORR = smoothSnow(dsWSS_CORR)
 
-
-# dsWSS_CORR2['Snowfall'].loc[dsWSS_CORR2['Snowfall'] < 0.001] = 0
-
 dsWSS_CORR2.loc[dsWSS_CORR2['SWout_Avg'] < 2, 'SWout_Avg'] = np.nan
 dsWSS_CORR2.loc[dsWSS_CORR2['SWin_Avg'] < 2, 'SWin_Avg'] = np.nan
 
-#daily albedo!
+# daily albedo!
 albedo_daily = dsWSS_CORR2['SWout_Avg'].resample('D').sum() / dsWSS_CORR2['SWin_Avg'].resample('D').sum()
 dsWSS_CORR2['Albedo'] = albedo_daily.resample('H').mean().ffill()
 dsWSS_CORR2.Albedo.loc[dsWSS_CORR2.Albedo > 1] = np.nan
@@ -525,19 +522,12 @@ dsWSS_CORR2['Surf_step1'] = dsWSS_CORR.snow_d3
 dsWSS_CORR2['Surf'] = dsWSS_CORR.snow_24roll
 dsWSS_CORR2['Snowfall'] = dsWSS_CORR2.Surf.diff()
 dsWSS_CORR2.loc[dsWSS_CORR2['Snowfall']<0, 'Snowfall'] = 0
-# dsWSS_CORR2['Snowfall'].loc[dsWSS_CORR2['Snowfall']<0.001] = 0
-
-# print(dsWSS_CORR2[['Snow', 'Surf', 'Snowfall', 'Albedo']].head())
-# fn = 'AWS/AWS_WSS_4cosipy_'+yr+'.csv'
 
 
 def adjustalbedo(start, end, df1, target):
     df = df1.copy()
     val = df.Albedo.loc[df.index == pd.to_datetime(target)].mean()
-    # print(val)
-    # print(df.loc[start:end, 'Albedo'])
     df.loc[start:end, 'Albedo'] = val
-    # print(df.loc[start:end, 'Albedo'])
     return (df)
 
 
@@ -555,12 +545,8 @@ def snowplot(dsWSS_CORR, dsWSS_CORR2):
     ax[1].plot(dsWSS_CORR2.index, dsWSS_CORR2.Surf_step1, color='black', label='surface, not smoothed')
     ax[1].plot(dsWSS_CORR2.index, dsWSS_CORR2.Surf, color='grey', label='surface, 24h rolling')
     ax1 = ax[1].twinx()
-    # ax0 = ax[0].twinx()
-    # ax0.plot(dsWSS_CORR2.Tair_Avg.resample('D').mean().rolling(31).mean(), color='green')
-
 
     dailySnow = dsWSS_CORR2.Snowfall.resample('d').sum() *100
-    # ax1.bar(daily.index, daily., color='blue')
     ax1.bar(dailySnow.index, dailySnow.values, color='skyblue', label='daily snowfall sum')
 
     day1 = pd.to_datetime('2021-08-01')
@@ -582,7 +568,7 @@ def snowplot(dsWSS_CORR, dsWSS_CORR2):
 
     dsWSS_CORR2.Surf_step1.resample('H').mean().to_csv('out/cleaned_surface_hourly.csv')
 
-    fig.savefig('snowcorrection_2.png', bbox_inches='tight', dpi=200)
+    fig.savefig('figs/snowcorrection_2.png', bbox_inches='tight', dpi=200)
 
     # --------
 
@@ -596,8 +582,6 @@ def snowplotAll(dsWSS_CORR, dsWSS_CORR2):
 
     ax[0].scatter(dsWSS_CORR2.index, dsWSS_CORR2.Surf_step1, color='black', s=1, label='SR50, lower envelope')
 
-
-    # ax[1].plot(dsWSS_CORR2.index, dsWSS_CORR2.Surf_step1, color='black', label='surface, not smoothed')
     ax[1].plot(dsWSS_CORR2.index, dsWSS_CORR2.Surf, color='grey', label='surface, 24h rolling mean')
     ax1 = ax[1].twinx()
     ax1.plot(dsWSS_CORR2.Tair_Avg.resample('D').mean().rolling(7).mean(), color='orange', label='Air temperature (7 day rolling mean)')
@@ -618,12 +602,10 @@ def snowplotAll(dsWSS_CORR, dsWSS_CORR2):
     day1 = pd.to_datetime('2018-01-01')
     day2 = pd.to_datetime('2024-12-31')
     ax[0].set_xlim([day1, day2])
-
-    # dsWSS_CORR2.Surf_step1.resample('H').mean().to_csv('out/cleaned_surface_hourly.csv')
-
-    fig.savefig('snow_allyears.png', bbox_inches='tight', dpi=200)
+    fig.savefig('figs/snow_allyears.png', bbox_inches='tight', dpi=200)
 
     # --------
+
 
 def snowplot_seasonal(dsWSS_CORR, dsWSS_CORR2):
     fig, ax = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
@@ -650,31 +632,7 @@ def snowplot_seasonal(dsWSS_CORR, dsWSS_CORR2):
     ax[1].set_ylim([-6, 6])
     ax[0].legend()
     ax[1].legend()
-
-    # ax[1].plot(dsWSS_CORR2.index, dsWSS_CORR2.Surf_step1, color='black', label='surface, not smoothed')
-    # ax[1].plot(dsWSS_CORR2.index, dsWSS_CORR2.Surf, color='grey', label='surface, 24h rolling')
-    # ax1 = ax[1].twinx()
-
-
-    # dailySnow = dsWSS_CORR2.Snowfall.resample('d').sum() *100
-    # # ax1.bar(daily.index, daily., color='blue')
-    # ax1.bar(dailySnow.index, dailySnow.values, color='skyblue', label='daily snowfall sum')
-
-    # # day1 = pd.to_datetime('2021-08-01')
-    # # day2 = pd.to_datetime('2021-08-30')
-    # # ax[0].set_xlim([day1, day2])
-
-    # ax[0].set_ylim([-0.5, 2.5])
-    # ax[0].set_ylabel('Surface height (m)')
-
-    # ax[1].set_ylabel('Surface height (m)')
-    # ax1.set_ylabel('Snowfall (cm)')
-
-    # ax[0].legend(ncols=2, loc='upper left', bbox_to_anchor=(0.2, 1.2))
-    # ax[1].legend(loc='upper center')
-    # ax1.legend()
-
-    fig.savefig('snowcorrection_4.png', bbox_inches='tight', dpi=200)
+    fig.savefig('figs/snowcorrection_4.png', bbox_inches='tight', dpi=200)
 
 
 snowplot(dsWSS_CORR, dsWSS_CORR2)

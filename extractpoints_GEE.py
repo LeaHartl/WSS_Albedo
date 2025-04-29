@@ -4,17 +4,24 @@ import ee
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-# import plotly.express as px
-# import seaborn as sns
+
 import geopandas as gpd
 
+
+# ee.Initialize(project='WSS-albedo')
+
+# Trigger the authentication flow.
+ee.Authenticate()
+
+# Initialize the library.
+ee.Initialize(project='wss-albedo')
 
 # load shapefile with positions
 stakes = gpd.read_file('/Users/leahartl/Desktop/WSS/outlines/stakes_AWS_centroids.shp')
 stakes_r = stakes.to_crs(4326)
 
+# print for reality check:
 print(stakes_r)
-
 
 stakes_r['x'] = stakes_r.geometry.x
 stakes_r['y'] = stakes_r.geometry.y
@@ -74,7 +81,7 @@ QA_BAND = 'cs'
 # Higher values will remove thin clouds, haze & cirrus shadows.
 CLEAR_THRESHOLD = 0.5
 # buffer around the point in meters
-BUFFER = 10
+BUFFER = 5
 
 
 for xy in stakes_r.geometry:

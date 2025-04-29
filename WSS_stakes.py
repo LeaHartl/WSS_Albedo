@@ -497,11 +497,11 @@ for st in sts:#['A', 'B', 'C', 'D', 'E', 'F', 'H']:
     an_st = tm['ice_ablation_mmwe'].resample('YE').sum()
     an_st.index = an_st.index.year
     annual_stakes[st] = an_st
+    print(st, an_st)
 
 print(annual_stakes)
 print('cumulative 2018-2023:', annual_stakes.loc[annual_stakes.index < 2024].sum())
 print('cumulative 2018-2024:', annual_stakes.sum())
-
 
 # this reads the files with S2 albedo extracted for the points. Second input is the buffer (5 or 10m)
 all_d = ReadAlbedo(stake_data, '5', nogood)

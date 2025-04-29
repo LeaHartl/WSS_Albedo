@@ -11,16 +11,13 @@ import matplotlib.dates as mdates
 from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
 import matplotlib.colors as mcolors
-# from shapely.geometry import Point
+
 import glob
-# import contextily as cx
+
 import fontawesome as fa
 from matplotlib.path import Path
 from matplotlib.textpath import TextToPath
 from matplotlib.font_manager import FontProperties
-# import earthpy as et
-# import earthpy.spatial as es
-# import earthpy.plot as ep
 import rasterio as rio
 from rasterio.plot import show
 from matplotlib_scalebar.scalebar import ScaleBar
@@ -35,9 +32,6 @@ import rasterio
 # supress copy warning - careful 
 pd.options.mode.chained_assignment = None  # default='warn'
 
-
-
-
 # list of dates with known issues in the S2 data
 nogood = pd.to_datetime(['2018-08-02', '2018-09-29', '2018-11-25', '2018-12-08',
                          '2019-01-27', '2019-04-02', '2019-04-04', '2019-08-22', '2019-08-30', '2019-12-15',
@@ -46,38 +40,6 @@ nogood = pd.to_datetime(['2018-08-02', '2018-09-29', '2018-11-25', '2018-12-08',
                          '2022-01-03', '2022-02-07', '2022-08-26', '2022-10-20', '2022-12-27', '2022-12-29',
                          '2023-01-13', '2023-02-20', '2023-12-29',
                              '2024-01-08', '2024-01-28', '2024-02-15', '2024-12-11'])
-
-# # read excel file with OG stake data
-# def ReadExcl(fname):
-#     stakes = ['A', 'B', 'C', 'D', 'E', 'F', 'BL0319', 'Gams']
-#     data = []
-#     clrs = cm.tab10(np.linspace(0, 1, len(stakes)))
-#     clrs_yr = cm.tab10(np.linspace(0, 1, len([2017, 2018, 2019, 2020, 2021, 2022, 2023])))
-
-#     for j, st in enumerate(stakes):
-#         temp = pd.read_excel(fname, st, header=1)
-#         temp = temp[['Datum', 'Diff', 'SH']]
-#         temp['name'] = st
-#         temp['date0'] = temp['Datum'].shift()
-#         temp = temp.loc[~temp.Datum.isnull()]
-#         temp['color'] = mcolors.rgb2hex(clrs[j], keep_alpha=True)
-    
-#         data.append(temp)
-    
-#     stake_data = pd.concat(data)
-#     stake_data['Datum'] = pd.to_datetime(stake_data['Datum'], format='%d/%m/%y')
-#     stake_data['date0'] = pd.to_datetime(stake_data['date0']) 
-#     stake_data['name'] = stake_data['name'].str.replace('BL0319','H')
-#     stake_data['name'] = stake_data['name'].str.replace('Gams','G')
-#     stake_data['period'] = (stake_data['Datum'] - stake_data['date0']).dt.days
-#     stake_data['daily'] = stake_data['Diff'] / stake_data['period'] 
-#     stake_data['color_yr'] = 'blue'
-
-#     for js, yr in enumerate(stake_data.Datum.dt.year.unique()):
-#         stake_data['color_yr'].loc[stake_data.Datum.dt.year==yr] = mcolors.rgb2hex(clrs_yr[js], keep_alpha=True)
-
-#     return(stake_data, clrs_yr)
-
 
 
 def StakesPlotsSub18(stake_data, dd, dh, nogood):
@@ -128,14 +90,12 @@ def StakesPlotsSub18(stake_data, dd, dh, nogood):
     ax.legend(loc='upper center', bbox_to_anchor=(1.15, 1))
     ax.grid('both')
 
-
     fig.savefig('figs/stakedata_albedo_subset_'+yr+'.png', dpi=200, bbox_inches='tight')
-
 
 
 def StakesRGB18_Albedo(stake_data, stakes, AWS):
     fig, ax = plt.subplots(2, 4, figsize=(12, 5), sharex=True, sharey=True)
-    stakes = stakes.loc[stakes.stakename.isin(['a', 'b', 'c', 'd', 'f'])]
+    stakes = stakes.loc[stakes.name.isin(['A', 'B', 'C', 'D', 'F'])]
 
     fs=14
     ax = ax.flatten()
@@ -169,30 +129,23 @@ def StakesRGB18_Albedo(stake_data, stakes, AWS):
         # ND2 = S2['Red'] / S2['SWIR1']
 
         # S2_masked1 = S2.where(ND >= 1)
-        S2_masked = S2#.where(ND2 >= 2)
+        S2_masked = S2 #.where(ND2 >= 2)
 
-        albedo= 0.356 * S2_masked['Blue'] + 0.130 * S2_masked['Red'] +0.373 * S2_masked['NIR'] + 0.085*S2_masked['SWIR1'] + 0.072*S2_masked['SWIR2'] -0.0018
+        albedo = 0.356 * S2_masked['Blue'] + 0.130 * S2_masked['Red'] +0.373 * S2_masked['NIR'] + 0.085*S2_masked['SWIR1'] + 0.072*S2_masked['SWIR2'] -0.0018
        
         # albedo_clip = albedo.rio.clip(clip.geometry.values, clip.crs)
-        levels=np.arange(0, 1, 0.1)
-        cmap='plasma'
+        levels = np.arange(0, 1, 0.1)
+        cmap = 'plasma'
         im = albedo.plot.contour(ax=ax[i], levels=levels, cmap=cmap, alpha=1, add_colorbar=False, linewidths=1)
         albedo.plot.contour(ax=ax[i], levels=[0.4], colors='darkred', alpha=1, add_colorbar=False, linewidths=2)
-        #ax[i].clabel(im, im.levels, inline=True, fontsize=10)
-
-        # plt.show()
+ 
 
     ax[0].set_xlim([630750, 631100])
     ax[0].set_ylim([5.1894e6, 5.1896e6])
 
-    #fig.subplots_adjust(right=0.8)
-
-    # cbar_ax = fig.add_axes([0.2, -0.002, 0.4, 0.03])
-    # fig.colorbar(im, cax=cbar_ax, cmap = cmap, label = 'S2 derived albedo', orientation='horizontal')
-
     for j, a in enumerate(ax[:-1]):
         AWS.plot(ax=a, alpha=1, color='red', marker='*', markersize=18)
-        stakes.plot(ax=a, alpha=1, color='grey', marker='o', markersize=10, edgecolor='k', zorder=200)
+        stakes.plot(ax=a, alpha=1, color='skyblue', marker='o', markersize=18, edgecolor='k', linewidth=0.1, zorder=200)
         a.add_artist(ScaleBar(dx=1, location="lower left", font_properties={"size": 12}))
         a.set_xticklabels([])
         a.set_yticklabels([])
@@ -201,7 +154,7 @@ def StakesRGB18_Albedo(stake_data, stakes, AWS):
         a.set_xticks([])
         a.set_yticks([])
         a.set_title(strings[j])
-        for x, y, label in zip(stakes.geometry.x, stakes.geometry.y, stakes.stakename):
+        for x, y, label in zip(stakes.geometry.x, stakes.geometry.y, stakes.name):
             a.annotate(label.upper(), xy=(x, y), xytext=(-4, 4), textcoords="offset points", fontsize=8)
 
     ax[-1].set_axis_off()
@@ -231,9 +184,13 @@ def StakesRGB18_Albedo(stake_data, stakes, AWS):
 # No surface elevation here bc SR50 data is too noisy.
 def StakesPlotsSub22(stake_data, dd, dh, nogood):
 
-    fldr = '/Users/leahartl/Desktop/WSS/satAlbedo/output/'
-    pts2 = ['a', 'b', 'c', 'f', 'AWS']
-    clrs = ['blue', 'orange', 'green', 'purple', 'red']
+    fldr = '/Users/leahartl/Desktop/WSS/WSS_Albedo/output_GEE/'
+    # fldr = '/Users/leahartl/Desktop/WSS/satAlbedo/output/'
+    # pts2 = ['a', 'b', 'c', 'f', 'AWS']
+    # clrs = ['blue', 'orange', 'green', 'purple', 'red']
+
+    pts2 = ['a', 'b', 'c', 'f', 'h', 'AWS']
+    clrs = ['blue', 'orange', 'green', 'purple', 'olive', 'red']
 
     fs = 14
     start = '2022-07-05'
@@ -640,23 +597,22 @@ stake_data, clrs_yr =ReadStakes(stakesfile)
 
 
 # paper fig: Summer 2022 temp, rad, albedo
-# StakesPlotsSub22(stake_data, dd22, data22, nogood)
-# plt.show()
-# stop
-# # paper fig: Albedo maps in WSS summit area summer 2022:
+StakesPlotsSub22(stake_data, dd22, data22, nogood)
+
+# paper fig: Albedo maps in WSS summit area summer 2022:
 # StakesRGB22_Albedo_2(stake_data, stakes, AWS)
 
-# sup fig - August 2018: 
-StakesPlotsSub18(stake_data, dd18, data18, nogood)
+# # sup fig - August 2018: 
+# StakesPlotsSub18(stake_data, dd18, data18, nogood)
 
-
-
+# # sup fig - August 2018 maps: 
+# StakesRGB18_Albedo(stake_data, stakes, AWS)
 
 
 # StakesPlotsSub21(stake_data, dd21, data21, nogood)
 # StakesPlotsSub22(stake_data, dd22, data22, nogood)
 
-# StakesRGB18_Albedo(stake_data, stakes, AWS)
+
 # StakesRGB21_Albedo(stake_data, stakes, AWS)
 
 

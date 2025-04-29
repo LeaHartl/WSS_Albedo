@@ -21,7 +21,7 @@ from matplotlib_scalebar.scalebar import ScaleBar
 pd.options.mode.chained_assignment = None  # default='warn'
 
 # set file path to stake data file:
-stakesfile  = '/Users/leahartl/Desktop/WSS/process_stakes/WSS_stakes_point_mass_balance.csv'
+stakesfile = '/Users/leahartl/Desktop/WSS/Re__Updates_WSS_paper/WSS_stakes_point_mass_balance.csv'
 
 # load AWS data:
 file = '/Users/leahartl/Desktop/WSS/AWS_wss/out/AWS_WSS_proc2025.csv'
@@ -85,8 +85,9 @@ nogood = pd.to_datetime(['2018-08-02',
 
 # function to load stake data file and assign colors to be used in plotting functions
 def ReadStakes(fname):
-    stakes = pd.read_csv(fname, parse_dates=True)
-    stakes['date1'] = pd.to_datetime(stakes['date1'])
+    stakes = pd.read_csv(fname)
+    stakes['date1'] = pd.to_datetime(stakes['date1'], format="%d.%m.%Y")
+    stakes['date0'] = pd.to_datetime(stakes['date0'], format="%d.%m.%Y")
     sts = stakes['name'].unique()
     stakes['daily'] = stakes['ice_ablation_mmwe'] / stakes['period'] 
 
@@ -102,6 +103,7 @@ def ReadStakes(fname):
         stakes.loc[stakes.date1.dt.year ==yr, 'color_yr'] = mcolors.rgb2hex(clrs_yr[js], keep_alpha=True)
 
     return(stakes, clrs_yr)
+
 
 
 
@@ -552,7 +554,7 @@ ax[0].set_title('AWS data coverage')
 ax[1].set_title('Stake readings')
 ax[2].set_title('Point scale S2-derived albedo')
 ax[3].set_title('Distributed S2-derived albedo')
-fig.savefig('data.png', dpi=200, bbox_inches='tight')
+fig.savefig('figs/data.png', dpi=200, bbox_inches='tight')
 plt.show()
 
 

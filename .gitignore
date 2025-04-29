@@ -4,6 +4,8 @@ AWS_data/
 output_GEE/
 TC_subm/
 *.dat
+*.xlsx
+*.docx
 plot_lter_ANNA.py
 *.png
 *.tif

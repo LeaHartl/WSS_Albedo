@@ -33,12 +33,6 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 def add_north_arrow(ax):
 
-  # py =0.8 * ax.figure.bbox.height
-  # px =0.05 * ax.figure.bbox.width
-
-  # Draw an arrow with a text "N" above it using annotation
-  #ax.annotate("N", xy=(0.02, 0.09), fontsize=20, xycoords="axes fraction")
-  # ax.annotate("",  xy=(0.065, 0.14), xytext=(0.065, 0.08),xycoords="axes fraction",
   ax.annotate("",  xy=(0.065, 0.22), xytext=(0.065, 0.08),xycoords="axes fraction",
           arrowprops=dict(arrowstyle="simple", facecolor="black"))
 
@@ -61,14 +55,12 @@ def overview5(GI5, AWS, stakes, contours, countries, RGI, cam):
 
     GI5.to_crs(epsg=31254, inplace=True)
 
-
     # prep figures:
     fig, ax = plt.subplots(1, 1, figsize=(14, 10), sharey=True, sharex=True)
     
     # axis for sat image:
     axins2 = ax.inset_axes([-1.4, -0.15, 1.2, 1.3])
     
-
     # axis for country overview:
     axins3 = ax.inset_axes([-1.3, 0.8, 0.6, 0.6])
 
@@ -150,25 +142,18 @@ def overview5(GI5, AWS, stakes, contours, countries, RGI, cam):
     contours.boundary.plot(ax=ax, alpha=1, color='black', linewidth=0.5)
     patch3 = Line2D([0], [0], linestyle='-', label='50 m contours', color='k',)
 
-
-
-
     minx = 28855
-    # maxx = 30888
     maxx = 30250
     miny = 189035
     maxy = 190476
     ax.set_xlim([minx, maxx])
     ax.set_ylim([miny, maxy])
 
-
     lon_lat_list = [[minx, miny], [minx, maxy], [maxx, maxy], [maxx, miny]]
 
     polygon_geom = Polygon(lon_lat_list)
     box1 = gpd.GeoDataFrame(index=[0], crs='epsg:31254', geometry=[polygon_geom])       
     box1.boundary.plot(ax=axins2, alpha=1, color='red', linewidth=4)
-
-
 
     # annotations
     # panel labels:
