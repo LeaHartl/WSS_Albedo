@@ -2,6 +2,7 @@ out/
 figs/
 AWS_data/
 output_GEE/
+data/
 TC_subm/
 *.dat
 *.xlsx

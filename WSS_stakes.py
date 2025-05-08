@@ -22,8 +22,9 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 # set file path to stake data file:
 # stakesfile = '/Users/leahartl/Desktop/WSS/process_stakes/WSS_stakes_point_mass_balance.csv'
-stakesfile = '/Users/leahartl/Desktop/WSS/Re__Updates_WSS_paper/WSS_stakes_point_mass_balance.csv'
+# stakesfile = '/Users/leahartl/Desktop/WSS/Re__Updates_WSS_paper/WSS_stakes_point_mass_balance.csv'
 
+stakesfile = '/Users/leahartl/Desktop/WSS/WSS_Albedo/data/stakes_pangaea.csv'
 # load AWS data:
 file = '/Users/leahartl/Desktop/WSS/AWS_wss/out/AWS_WSS_proc2025.csv'
 data = pd.read_csv(file, parse_dates=True, skiprows=[0,2,3])
@@ -87,8 +88,8 @@ nogood = pd.to_datetime(['2018-08-02',
 # function to load stake data file and assign colors to be used in plotting functions
 def ReadStakes(fname):
     stakes = pd.read_csv(fname)
-    stakes['date1'] = pd.to_datetime(stakes['date1'], format="%d.%m.%Y")
-    stakes['date0'] = pd.to_datetime(stakes['date0'], format="%d.%m.%Y")
+    stakes['date1'] = pd.to_datetime(stakes['date1'])#, format="%d.%m.%Y")
+    stakes['date0'] = pd.to_datetime(stakes['date0'])#, format="%d.%m.%Y")
     sts = stakes['name'].unique()
     stakes['daily'] = stakes['ice_ablation_mmwe'] / stakes['period'] 
 

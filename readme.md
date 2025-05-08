@@ -20,6 +20,12 @@ extracts albedo data for the point locations of the centroids (stakes & aws) pro
 set the buffer size in the script! (for paper: run with 5 and 10 m buffer)
 
 
+**read_pangaea.py**     
+short script to read pangaea file format and remove the header. Pangaea data publication of the stake values is at:
+https://doi.pangaea.de/10.1594/PANGAEA.982345
+
+
+
 ## Albedo figures:	
 **AWS_albedo_corr.py**        
 computes solar time and checks sun angles. calls functions in "solar_helpers.py"
